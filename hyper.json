@@ -1,2 +1,3 @@
 {"learning rate":0.01,
-"num_epochs":10}
+"num_epochs":10,
+"file location": "/Users/aleccooper/Documents/Translate/Corpus/test.txt"}

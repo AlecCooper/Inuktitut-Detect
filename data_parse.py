@@ -11,9 +11,9 @@ class Data():
 
         # ingesting from previosuly saved numpy arrays
         if from_file:
-            cwd = os.getcwd()
-            self.train_data = np.fromfile(cwd + "/train_data.npy")
-            self.test_data = np.fromfile(cwd + "/test_data.npy")
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            self.train_data = np.load(dir_path + "/train_data.npy")
+            self.test_data = np.load(dir_path + "/test_data.npy")
             
         # not from file, we are ingesting from the corpus
         else:
@@ -46,9 +46,9 @@ class Data():
             self.test_data = data[num_train:]
 
             # save data
-            cwd = os.getcwd()
-            np.savez(cwd + "/train_data",self.train_data)
-            np.savez(cwd + "/test_data",self.test_data)
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            np.save(dir_path + "/train_data",self.train_data)
+            np.save(dir_path + "/test_data",self.test_data)
 
 
     def __ingest(self,file_location):
@@ -189,4 +189,3 @@ class Data():
             i += 1
 
         return token_array
-
