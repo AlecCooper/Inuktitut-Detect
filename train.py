@@ -43,9 +43,8 @@ def train(hyper):
         # Clear our gradients
         net.zero_grad
 
-        
-
-
+        # Feed the output throught the net
+        x = net.forward(data.x_train)
 
 if  __name__ == "__main__":
 
@@ -58,7 +57,7 @@ if  __name__ == "__main__":
 
     # We need to check if the data parser has run on the corpus yet
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    if not os.path.isfile(dir_path + "/test_data.npy"):
+    if not os.path.isfile(dir_path + "/Data/x_test.npy"):
         data = parser.Data(hyper["file location"],10,False,5)
 
     train(hyper)

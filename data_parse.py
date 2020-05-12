@@ -12,8 +12,11 @@ class Data():
         # ingesting from previosuly saved numpy arrays
         if from_file:
             dir_path = os.path.dirname(os.path.realpath(__file__))
-            self.train_data = np.load(dir_path + "/train_data.npy")
-            self.test_data = np.load(dir_path + "/test_data.npy")
+            dir_path += "/Data"
+            self.x_train = np.load(dir_path + "/x_train.npy")
+            self.x_test = np.load(dir_path + "/x_test.npy")
+            self.y_train = np.load(dir_path + "/y_train.npy")
+            self.y_test = np.load(dir_path + "/y_test.npy")
             
         # not from file, we are ingesting from the corpus
         else:
@@ -42,13 +45,25 @@ class Data():
             # Break into training and testing data
             num_train = len(data) - num_test
 
-            self.train_data = data[:num_train]
-            self.test_data = data[num_train:]
+            train_data = data[:num_train]
+            test_data = data[num_train:]
+
+            # break into our x and y data
+            self.x_train = np.copy(train_data[:,:size])
+            self.x_test = np.copy(test_data[:,:size])
+
+            self.y_train = np.copy(train_data[:,size])
+            self.y_test = np.copy(test_data[:,size])
 
             # save data
             dir_path = os.path.dirname(os.path.realpath(__file__))
-            np.save(dir_path + "/train_data",self.train_data)
-            np.save(dir_path + "/test_data",self.test_data)
+            if not os.path.exists(dir_path + "/Data"):
+                os.mkdir(dir_path + "/Data")
+            dir_path += "/Data"
+            np.save(dir_path + "/x_train",self.x_train)
+            np.save(dir_path + "/x_test",self.x_test)
+            np.save(dir_path + "/y_train",self.y_train)
+            np.save(dir_path + "/y_test",self.y_test)
 
 
     def __ingest(self,file_location):
@@ -189,3 +204,4 @@ class Data():
             i += 1
 
         return token_array
+
