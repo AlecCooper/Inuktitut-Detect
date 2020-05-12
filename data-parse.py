@@ -1,6 +1,7 @@
 import numpy as np
 import torch as torch
 import string
+import os
 
 class Data():
 
@@ -10,19 +11,24 @@ class Data():
 
         # ingesting from previosuly saved numpy arrays
         if from_file:
-            self.train_data = np.fromfile("train_data.npy")
-            self.test_data = np.fromfile("test_data.npy")
+            cwd = os.getcwd()
+            self.train_data = np.fromfile(cwd + "/train_data.npy")
+            self.test_data = np.fromfile(cwd + "/test_data.npy")
             
         # not from file, we are ingesting from the corpus
         else:
             # ingest and clean tokens from corpus
             inuktitut_tokens, english_tokens = self.__ingest(file_location)
 
+            # convert to ascii representation
+            inuktitut_tokens = self.__to_ascii(inuktitut_tokens)
+            english_tokens = self.__to_ascii(english_tokens)
+
             # combine into an 2d array
             # 1s representing a english and 0s inuktitut
 
-            ones = np.ones((len(english_tokens),1),dtype=np.bool)
-            zeros = np.zeros((len(inuktitut_tokens),1),dtype=np.bool)
+            ones = np.ones((len(english_tokens),1),dtype=np.uint8)
+            zeros = np.zeros((len(inuktitut_tokens),1),dtype=np.uint8)
 
             e_data = np.concatenate((english_tokens,ones),axis=1)
             i_data = np.concatenate((inuktitut_tokens,zeros),axis=1)
@@ -40,8 +46,9 @@ class Data():
             self.test_data = data[num_train:]
 
             # save data
-            np.save("train_data",self.train_data)
-            np.save("test_data",self.test_data)
+            cwd = os.getcwd()
+            np.savez(cwd + "/train_data",self.train_data)
+            np.savez(cwd + "/test_data",self.test_data)
 
 
     def __ingest(self,file_location):
@@ -81,9 +88,9 @@ class Data():
 
         # tokienize our lines
         print("English line tokenization")
-        english_tokens = np.array([self.__tokienize(english)]).transpose()
+        english_tokens = np.array(self.__tokienize(english))
         print("Inuktitut line tokenization")
-        inuktitut_tokens = np.array([self.__tokienize(inuktitut)]).transpose()
+        inuktitut_tokens = np.array(self.__tokienize(inuktitut))
 
         return inuktitut_tokens, english_tokens
 
@@ -135,6 +142,10 @@ class Data():
         if len(token) == 0:
             return ""
 
+        # If token is larger than our size we discard it
+        if len(token) > self.size:
+            return ""
+
         # If string contains numberic information, it is discarded as a token
         if any(char.isdigit() for char in token):
             return ""
@@ -159,4 +170,23 @@ class Data():
 
         return token
 
-data = Data("/Users/aleccooper/Documents/Translate/Corpus/test.txt",10,False,3)
+    # convert each token into a numpy array of its ascii representation
+    def __to_ascii(self,tokens):
+
+        token_array = np.empty((len(tokens),10),dtype=np.uint8)
+
+        i = 0
+
+        for token in tokens:
+
+            # convert token to ascii representation
+            char_array = np.array(str(token),dtype="c")
+            ascii_array = np.array(char_array.view(dtype=np.uint8))
+
+            # append to array
+            token_array[i] = ascii_array
+            
+            i += 1
+
+        return token_array
+
