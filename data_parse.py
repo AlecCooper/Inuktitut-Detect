@@ -13,10 +13,10 @@ class Data():
         if from_file:
             dir_path = os.path.dirname(os.path.realpath(__file__))
             dir_path += "/Data"
-            self.x_train = np.load(dir_path + "/x_train.npy")
-            self.x_test = np.load(dir_path + "/x_test.npy")
-            self.y_train = np.load(dir_path + "/y_train.npy")
-            self.y_test = np.load(dir_path + "/y_test.npy")
+            x_train = np.load(dir_path + "/x_train.npy")
+            x_test = np.load(dir_path + "/x_test.npy")
+            y_train = np.load(dir_path + "/y_train.npy")
+            y_test = np.load(dir_path + "/y_test.npy")
             
         # not from file, we are ingesting from the corpus
         else:
@@ -49,21 +49,27 @@ class Data():
             test_data = data[num_train:]
 
             # break into our x and y data
-            self.x_train = np.copy(train_data[:,:size])
-            self.x_test = np.copy(test_data[:,:size])
+            x_train = np.copy(train_data[:,:size])
+            x_test = np.copy(test_data[:,:size])
 
-            self.y_train = np.copy(train_data[:,size])
-            self.y_test = np.copy(test_data[:,size])
+            y_train = np.copy(train_data[:,size])
+            y_test = np.copy(test_data[:,size])
 
             # save data
             dir_path = os.path.dirname(os.path.realpath(__file__))
             if not os.path.exists(dir_path + "/Data"):
                 os.mkdir(dir_path + "/Data")
             dir_path += "/Data"
-            np.save(dir_path + "/x_train",self.x_train)
-            np.save(dir_path + "/x_test",self.x_test)
-            np.save(dir_path + "/y_train",self.y_train)
-            np.save(dir_path + "/y_test",self.y_test)
+            np.save(dir_path + "/x_train",x_train)
+            np.save(dir_path + "/x_test",x_test)
+            np.save(dir_path + "/y_train",y_train)
+            np.save(dir_path + "/y_test",y_test)
+        
+        # Convert to tensor
+        self.x_train = torch.from_numpy(x_train)
+        self.x_test = torch.from_numpy(x_test)
+        self.x_train = torch.from_numpy(x_train)
+        self.x_test = torch.from_numpy(x_test)
 
 
     def __ingest(self,file_location):
