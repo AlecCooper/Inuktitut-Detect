@@ -65,11 +65,15 @@ class Data():
             np.save(dir_path + "/y_train",y_train)
             np.save(dir_path + "/y_test",y_test)
         
+        # Convert to one hot vectors
+        x_train = self.__one_hot(x_train)
+        x_test = self.__one_hot(x_test)
+
         # Convert to tensor
         self.x_train = torch.from_numpy(x_train)
         self.x_test = torch.from_numpy(x_test)
-        self.x_train = torch.from_numpy(x_train)
-        self.x_test = torch.from_numpy(x_test)
+        self.y_train = torch.from_numpy(y_train)
+        self.y_test = torch.from_numpy(y_test)
 
 
     def __ingest(self,file_location):
@@ -182,19 +186,19 @@ class Data():
         if not token.isalpha():
             return ""
 
-        # replace our & consonent from A to %26 (as required by the analyzer)
-        token = token.replace("A","%26")
+        # replace our & consonent from A to { (one about z in ascii)
+        token = token.replace("A","{")
 
         # Add padding
         while len(token) < self.size:
-            token += "@"
+            token += "`"  #when mapping to out one hot vector, will map to 0 vector
 
         return token
 
     # convert each token into a numpy array of its ascii representation
     def __to_ascii(self,tokens):
 
-        token_array = np.empty((len(tokens),10),dtype=np.uint8)
+        token_array = np.empty((len(tokens),self.size),dtype=np.uint8)
 
         i = 0
 
@@ -202,7 +206,9 @@ class Data():
 
             # convert token to ascii representation
             char_array = np.array(str(token),dtype="c")
-            ascii_array = np.array(char_array.view(dtype=np.uint8))
+
+            #-96 so when we map to vectors the values in this array are between 0-97
+            ascii_array = np.array(char_array.view(dtype=np.uint8)) - 96
 
             # append to array
             token_array[i] = ascii_array
@@ -210,4 +216,33 @@ class Data():
             i += 1
 
         return token_array
+
+    def __one_hot(self,token_array):
+
+        # Create array for 1 hot data
+        hot_array = np.zeros([token_array.shape[0],token_array.shape[1],29])
+
+        # loop index
+        i = 0
+
+        # loop through each character and encode
+        for token in token_array:
+            j = 0
+            for char in token:
+
+                # Create one hot vector
+                ohv = np.zeros([29],dtype=np.bool)
+                ohv[char] = 1
+
+                # Add to our array
+                hot_array[i,j,:] = ohv
+
+                j+=1
+
+            i+=1
+
+        # make array conform to torch's lstm format
+        hot_array_swap = np.swapaxes(hot_array,0,1)
+
+        return hot_array_swap
 

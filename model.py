@@ -10,18 +10,24 @@ class Net(nn.Module):
         super(Net, self).__init__()
 
         # Create the layers of our neural net
-        self.lstm1 = nn.LSTM(10,20)
-        self.fc1 = nn.Linear(20,20)
-        self.fc2 = nn.Linear(20,10)
-        self.fc3 = nn.Linear(10,2)
+
+        # temporary vals
+        embedded_dim = 29
+        hidden_dim = 29
+        seq_length = 10            
+        batch_size = 10
+        num_layers = 1
+
+        # The lstm layer of our net
+        self.lstm1 = nn.LSTM(embedded_dim,hidden_dim,num_layers=num_layers)
+        # The linear layer, mapping to the 2 classifications
+        self.hidden1 = nn.Linear(hidden_dim,2)
 
     # Feedforward function
     def forward(self,word):
 
         x = self.lstm1(word)
-        x = func.relu(self.fc1(x))
-        x = func.relu(self.fc2(x))
-        x = func.sigmoid(self.fc3(x))
+        x = self.hidden1(x)
 
         return x
 
@@ -29,10 +35,6 @@ class Net(nn.Module):
     def reset(self):
 
         self.lstm1.reset_parameters()
-        self.fc1.reset_parameters()
-        self.fc2.reset_parameters()
-        self.fc3.reset_parameters()
-
 
 
 
