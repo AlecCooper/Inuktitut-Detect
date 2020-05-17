@@ -1,3 +1,5 @@
 {"learning rate":0.01,
-"num_epochs":10,
-"file location": "/Users/aleccooper/Documents/Translate/Corpus/test.txt"}
+"num_epochs":1000,
+"file location": "/Users/aleccooper/Documents/Translate/Corpus/test.txt",
+"verbosity":2,
+"display epochs":true}

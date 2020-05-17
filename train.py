@@ -8,7 +8,7 @@ import torch.optim as optim
 import torch as torch
 import torch.nn.functional as func
 import numpy as np
-import model as nn
+import lang_model as model
 import data_parse as parser
 import json
 import os
@@ -17,7 +17,7 @@ import os
 def train(hyper):
 
     # Create our model
-    net = nn.Net()
+    net = model.Net()
 
     # Load in our dataset
     data = parser.Data(hyper["file location"],10,False,5)
@@ -28,11 +28,18 @@ def train(hyper):
     # Create our optimizer
     optimizer = optim.Adam(net.parameters(), lr)
 
+    # Create our loss function
+    loss_func = torch.nn.BCELoss(reduction="mean")
+
     # Extract num epochs from hyper parameters
     num_epochs = hyper["num_epochs"]
 
     # list of our training loss values
     loss_vals = []
+    
+    # lists to track preformance of network
+    obj_vals= []
+    cross_vals= []
 
     # Training loop
     for epoch in range(1,num_epochs+1):
@@ -44,7 +51,29 @@ def train(hyper):
         net.zero_grad
 
         # Feed the output throught the net
-        x = net.forward(data.x_train)
+        output = net.forward(data.x_train)
+
+        # calculate loss function
+        loss = loss_func(output,data.y_train)
+        loss_vals.append(loss)
+
+        # Backpropagate the loss
+        loss.backward()
+
+        # Graph our progress
+        obj_vals.append(loss)
+        test_val= net.test(data, loss_func, epoch)
+        cross_vals.append(test_val)
+
+        optimizer.step()
+
+        # High verbosity report in output stream
+        if hyper["verbosity"] >=2:
+            if not ((epoch + 1) % hyper["display epochs"]):
+                print('Epoch [{}/{}]'.format(epoch, num_epochs) +\
+                    '\tTraining Loss: {:.4f}'.format(loss) +\
+                    '\tTest Loss: {:.4f}'.format(test_val))
+                    #"\tPercent Correct: {:.2f}".format(test(output,data.y_train)))
 
 if  __name__ == "__main__":
 

@@ -53,6 +53,7 @@ class Data():
             x_test = np.copy(test_data[:,:size])
 
             y_train = np.copy(train_data[:,size])
+            print(y_train)
             y_test = np.copy(test_data[:,size])
 
             # save data
@@ -70,10 +71,16 @@ class Data():
         x_test = self.__one_hot(x_test)
 
         # Convert to tensor
-        self.x_train = torch.from_numpy(x_train)
-        self.x_test = torch.from_numpy(x_test)
-        self.y_train = torch.from_numpy(y_train)
-        self.y_test = torch.from_numpy(y_test)
+        x_train = torch.from_numpy(x_train)
+        x_test = torch.from_numpy(x_test)
+        y_train = torch.from_numpy(y_train)
+        y_test = torch.from_numpy(y_test)
+
+        # Convert to double type to satisfy pytorch's lstm requirements
+        self.x_train = x_train.float().clone()
+        self.x_test = x_test.float().clone()
+        self.y_train = y_train.float().clone()
+        self.y_test = y_test.float().clone()
 
 
     def __ingest(self,file_location):
@@ -241,8 +248,7 @@ class Data():
 
             i+=1
 
-        # make array conform to torch's lstm format
-        hot_array_swap = np.swapaxes(hot_array,0,1)
+        return hot_array
 
-        return hot_array_swap
-
+#data = Data("/Users/aleccooper/Documents/Translate/Corpus/test.txt",10,False,2)
+#print(data.x_test.size())

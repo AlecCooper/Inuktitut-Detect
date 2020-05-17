@@ -15,21 +15,55 @@ class Net(nn.Module):
         embedded_dim = 29
         hidden_dim = 29
         seq_length = 10            
-        batch_size = 10
+        batch_size = 5
         num_layers = 1
 
+        # is seq_length right here?
+        self.h0 = torch.randn((num_layers,batch_size,hidden_dim),dtype=torch.float)
+        self.c0 = torch.randn((num_layers,batch_size,hidden_dim),dtype=torch.float)
+
         # The lstm layer of our net
-        self.lstm1 = nn.LSTM(embedded_dim,hidden_dim,num_layers=num_layers)
+        self.lstm1 = nn.LSTM(embedded_dim,hidden_dim,num_layers=num_layers,batch_first=True)
+
+        # Convolutional layer
+        self.conv1 = nn.Conv2d(in_channels=1,out_channels=6,kernel_size=3)
+        self.pool1 = nn.MaxPool2d((2,2))
+        self.conv2 = nn.Conv2d(in_channels=6,out_channels=18,kernel_size=3)
+        self.pool2 = nn.MaxPool2d((2,2))
+
         # The linear layer, mapping to the 2 classifications
-        self.hidden1 = nn.Linear(hidden_dim,2)
+        self.hidden1 = nn.Linear(90,45)
+        self.hidden2 = nn.Linear(45,1)
 
     # Feedforward function
     def forward(self,word):
 
-        x = self.lstm1(word)
-        x = self.hidden1(x)
+        # LSTM layers
+        x = self.lstm1(word, (self.h0,self.c0))
+
+        # Convolution layers
+        x = torch.unsqueeze(x[0],1) #add singleton dimension for channel dim in convs
+        x = func.relu(self.conv1(x))
+        x = self.pool1(x)
+        x = func.relu(self.conv2(x))
+        x = self.pool2(x)
+
+        # Linear layers
+        # Convert to flat vector
+        x = torch.reshape(x,(x.size()[0],18*5))
+        x = func.relu(self.hidden1(x))
+        x = func.sigmoid(self.hidden2(x))
 
         return x
+
+    # Test function. Avoids calculation of gradients.
+    def test(self, data, loss_func, epoch):
+        self.eval()
+        with torch.no_grad():
+            inputs= data.x_test
+            targets= data.y_test
+            cross_val= loss_func(self.forward(inputs).reshape(-1), targets)
+        return cross_val.item()
 
     # Reset all training weights
     def reset(self):
