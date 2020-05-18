@@ -1,5 +1,5 @@
-{"learning rate":0.01,
-"num_epochs":1000,
-"file location": "/Users/aleccooper/Documents/Translate/Corpus/test.txt",
+{"learning rate":0.005,
+"num_epochs":100,
+"file location": "/Users/aleccooper/Documents/Translate/Corpus/SentenceAligned.v2.txt",
 "verbosity":2,
 "display epochs":true}

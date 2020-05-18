@@ -12,15 +12,16 @@ import lang_model as model
 import data_parse as parser
 import json
 import os
+import matplotlib.pyplot as plt
 
 # Main training loop
 def train(hyper):
 
-    # Create our model
-    net = model.Net()
-
     # Load in our dataset
-    data = parser.Data(hyper["file location"],10,False,5)
+    data = parser.Data(hyper["file location"],10,True,10000)
+
+    # Create our model
+    net = model.Net(data.x_train.size()[0])
 
     # Extract learning rate from hyper parameters
     lr=hyper["learning rate"]
@@ -74,6 +75,18 @@ def train(hyper):
                     '\tTraining Loss: {:.4f}'.format(loss) +\
                     '\tTest Loss: {:.4f}'.format(test_val))
                     #"\tPercent Correct: {:.2f}".format(test(output,data.y_train)))
+    
+    # Low verbosity final report
+    if hyper["verbosity"]:
+        print('Final training loss: {:.4f}'.format(obj_vals[-1]))
+        print('Final test loss: {:.4f}'.format(cross_vals[-1]))
+
+    # Plot Results
+    plt.plot(range(num_epochs), obj_vals, label= "Training loss", color="blue")
+    plt.plot(range(num_epochs), cross_vals, label= "Test loss", color= "green")
+    plt.legend()
+    plt.savefig("Training-Test-Loss")
+    plt.show()
 
 if  __name__ == "__main__":
 

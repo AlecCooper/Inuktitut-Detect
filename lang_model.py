@@ -5,25 +5,25 @@ import torch.nn.functional as func
 class Net(nn.Module):
 
     # Architecture of network
-    def __init__(self):
+    def __init__(self,batch_size):
 
         super(Net, self).__init__()
+
 
         # Create the layers of our neural net
 
         # temporary vals
         embedded_dim = 29
-        hidden_dim = 29
+        hidden_size = 29
         seq_length = 10            
-        batch_size = 5
         num_layers = 1
 
         # is seq_length right here?
-        self.h0 = torch.randn((num_layers,batch_size,hidden_dim),dtype=torch.float)
-        self.c0 = torch.randn((num_layers,batch_size,hidden_dim),dtype=torch.float)
+        self.h0 = torch.randn((num_layers,batch_size,hidden_size),dtype=torch.float)
+        self.c0 = torch.randn((num_layers,batch_size,hidden_size),dtype=torch.float)
 
         # The lstm layer of our net
-        self.lstm1 = nn.LSTM(embedded_dim,hidden_dim,num_layers=num_layers,batch_first=True)
+        self.lstm1 = nn.LSTM(embedded_dim,hidden_size,num_layers=num_layers,batch_first=True)
 
         # Convolutional layer
         self.conv1 = nn.Conv2d(in_channels=1,out_channels=6,kernel_size=3)
@@ -32,14 +32,16 @@ class Net(nn.Module):
         self.pool2 = nn.MaxPool2d((2,2))
 
         # The linear layer, mapping to the 2 classifications
-        self.hidden1 = nn.Linear(90,45)
-        self.hidden2 = nn.Linear(45,1)
+        self.hidden1 = nn.Linear(90,1000)
+        self.hidden2 = nn.Linear(1000,100)
+        self.hidden3 = nn.Linear(100,1)
 
     # Feedforward function
     def forward(self,word):
 
         # LSTM layers
-        x = self.lstm1(word, (self.h0,self.c0))
+        #x = self.lstm1(word, (self.h0,self.c0))
+        x = self.lstm1(word)
 
         # Convolution layers
         x = torch.unsqueeze(x[0],1) #add singleton dimension for channel dim in convs
@@ -52,7 +54,8 @@ class Net(nn.Module):
         # Convert to flat vector
         x = torch.reshape(x,(x.size()[0],18*5))
         x = func.relu(self.hidden1(x))
-        x = func.sigmoid(self.hidden2(x))
+        x = func.relu(self.hidden2(x))
+        x = torch.sigmoid(self.hidden3(x))
 
         return x
 

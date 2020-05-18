@@ -47,13 +47,14 @@ class Data():
 
             train_data = data[:num_train]
             test_data = data[num_train:]
+            print("Num of training samples")
+            print(len(train_data))
 
             # break into our x and y data
             x_train = np.copy(train_data[:,:size])
             x_test = np.copy(test_data[:,:size])
 
             y_train = np.copy(train_data[:,size])
-            print(y_train)
             y_test = np.copy(test_data[:,size])
 
             # save data
@@ -191,6 +192,10 @@ class Data():
 
         # If not alphabetic, remove so we are just left with letters (including &)
         if not token.isalpha():
+            return ""
+
+        # Confirm token is ascii
+        if any(ord(char) > 128 for char in token):
             return ""
 
         # replace our & consonent from A to { (one about z in ascii)
