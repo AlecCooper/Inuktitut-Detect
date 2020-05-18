@@ -41,6 +41,7 @@ def train(hyper):
     # lists to track preformance of network
     obj_vals= []
     cross_vals= []
+    correct_vals = []
 
     # Training loop
     for epoch in range(1,num_epochs+1):
@@ -55,16 +56,32 @@ def train(hyper):
         output = net.forward(data.x_train)
 
         # calculate loss function
-        loss = loss_func(output,data.y_train)
+        loss = loss_func(output[:,0],data.y_train)
         loss_vals.append(loss)
 
         # Backpropagate the loss
         loss.backward()
 
+        # Calculate test data
+        test_data = net.test(data, loss_func, epoch)
+        test_val = test_data[0]
+        test_output = test_data[1]
+
+        # Calc percent correct
+        i = 0
+        num_correct = 0
+        for choice in test_output:
+            if choice < 0.5 and data.y_test[i] < 0.5:
+                num_correct += 1
+            elif choice > 0.5 and data.y_test[i] > 0.5:
+                num_correct += 1
+            i+=1
+        pecent_correct = num_correct/len(data.y_test) * 100.0
+
         # Graph our progress
         obj_vals.append(loss)
-        test_val= net.test(data, loss_func, epoch)
         cross_vals.append(test_val)
+        correct_vals.append(pecent_correct)
 
         optimizer.step()
 
@@ -73,8 +90,9 @@ def train(hyper):
             if not ((epoch + 1) % hyper["display epochs"]):
                 print('Epoch [{}/{}]'.format(epoch, num_epochs) +\
                     '\tTraining Loss: {:.4f}'.format(loss) +\
-                    '\tTest Loss: {:.4f}'.format(test_val))
-                    #"\tPercent Correct: {:.2f}".format(test(output,data.y_train)))
+                    '\tTest Loss: {:.4f}'.format(test_val) +\
+                    "\tPercent Correct: {:.2f}".format(pecent_correct) +\
+                        "%")
     
     # Low verbosity final report
     if hyper["verbosity"]:
@@ -84,6 +102,8 @@ def train(hyper):
     # Plot Results
     plt.plot(range(num_epochs), obj_vals, label= "Training loss", color="blue")
     plt.plot(range(num_epochs), cross_vals, label= "Test loss", color= "green")
+    plt.ylabel("Binary Cross Entropy Loss")
+    plt.xlabel("Training Epoch")
     plt.legend()
     plt.savefig("Training-Test-Loss")
     plt.show()

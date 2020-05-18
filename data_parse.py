@@ -125,6 +125,9 @@ class Data():
         print("Inuktitut line tokenization")
         inuktitut_tokens = np.array(self.__tokienize(inuktitut))
 
+        # Remove and tokens that appear in both lists
+        inuktitut_tokens, english_tokens = self.__remove_dupes(inuktitut_tokens,english_tokens)
+
         return inuktitut_tokens, english_tokens
 
     def __tokienize(self,lines):
@@ -206,6 +209,26 @@ class Data():
             token += "`"  #when mapping to out one hot vector, will map to 0 vector
 
         return token
+
+    # removes any tokens that appear in both token lists
+    def __remove_dupes(self,i_tokens,e_tokens):
+
+        # Inefficent method, must update
+
+        new_i_token = []
+        new_e_token = []
+
+        for i_token in i_tokens:
+
+            if not i_token in e_tokens:
+                new_i_token.append(i_token)
+
+        for e_token in e_tokens:
+
+            if not e_token in i_tokens:
+                new_e_token.append(e_token)
+
+        return new_i_token, new_e_token
 
     # convert each token into a numpy array of its ascii representation
     def __to_ascii(self,tokens):

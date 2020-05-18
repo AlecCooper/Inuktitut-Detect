@@ -9,7 +9,6 @@ class Net(nn.Module):
 
         super(Net, self).__init__()
 
-
         # Create the layers of our neural net
 
         # temporary vals
@@ -65,13 +64,19 @@ class Net(nn.Module):
         with torch.no_grad():
             inputs= data.x_test
             targets= data.y_test
-            cross_val= loss_func(self.forward(inputs).reshape(-1), targets)
-        return cross_val.item()
+            output = self.forward(inputs).reshape(-1)
+            cross_val= loss_func(output, targets)
+        return cross_val.item(),output
 
     # Reset all training weights
     def reset(self):
 
         self.lstm1.reset_parameters()
+        self.hidden1.reset_parameters()
+        self.hidden2.reset_parameters()
+        self.hidden3.reset_parameters()
+        self.conv1.reset_parameters()
+        self.conv2.reset_parameters()
 
 
 
