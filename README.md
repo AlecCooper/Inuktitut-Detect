@@ -21,10 +21,10 @@ To train the model run the following:
   `-t` tells the program to retokienize the data. Since tokienization takes some time, by default it is saved to a created `/Data` folder in the form of `.npy` files. Adding this flag will reprocess the corpus.  
 
 #### Paramater File  
-A paramater file is included in the repo. It includes the paramaters:  
-`learning rate:0.005`  
-The learning rate our model uses during SGD  
-`num epochs:100`    
+  paramater file is included in the repo. It includes the paramaters:  
+  * `learning rate:0.005`  
+  The learning rate our model uses during SGD  
+  * `num epochs:100`    
 The number of epochs in the training loop  
-`num test:1000`  
+  * `num test:1000`  
 The number of samples set aside for testing
