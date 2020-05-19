@@ -22,11 +22,11 @@ To train the model run the following:
 
 #### Paramater File  
   Paramater file is included in the repo. It includes the paramaters:  
-  * `learning rate:0.005`  
+  * `"learning rate":0.005`  
   The learning rate our model uses during SGD  
-  * `num epochs:100`    
+  * `"num epochs":100`    
 The number of epochs in the training loop  
-  * `num test:1000`  
+  * `"num test":1000`  
 The number of samples set aside for testing  
 
 ## Results
