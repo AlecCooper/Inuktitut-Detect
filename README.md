@@ -27,4 +27,9 @@ To train the model run the following:
   * `num epochs:100`    
 The number of epochs in the training loop  
   * `num test:1000`  
-The number of samples set aside for testing
+The number of samples set aside for testing  
+
+## Results
+
+Using the hyperparameters included in params.json, a BCE of 0.12 and accuracy of 96%  was acheived on the test set.
+![image](https://raw.githubusercontent.com/AlecCooper/Inuktitut-Detect/master/Results/results.png?token=ABFU22E6WORKYPGK64KXMPS6YQR36)
