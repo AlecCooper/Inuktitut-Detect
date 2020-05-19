@@ -13,13 +13,8 @@ class Net(nn.Module):
 
         # temporary vals
         embedded_dim = 29
-        hidden_size = 29
-        seq_length = 10            
+        hidden_size = 29        
         num_layers = 1
-
-        # is seq_length right here?
-        self.h0 = torch.randn((num_layers,batch_size,hidden_size),dtype=torch.float)
-        self.c0 = torch.randn((num_layers,batch_size,hidden_size),dtype=torch.float)
 
         # The lstm layer of our net
         self.lstm1 = nn.LSTM(embedded_dim,hidden_size,num_layers=num_layers,batch_first=True)

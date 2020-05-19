@@ -9,16 +9,17 @@ import torch as torch
 import torch.nn.functional as func
 import numpy as np
 import lang_model as model
-import data_parse as parser
+import data_parse as data_parser
 import json
 import os
+import argparse
 import matplotlib.pyplot as plt
 
 # Main training loop
-def train(hyper):
+def train(hyper,args):
 
     # Load in our dataset
-    data = parser.Data(hyper["file location"],10,True,10000)
+    data = data_parser.Data(args.datafile,10,args.tokienize,hyper["num test"])
 
     # Create our model
     net = model.Net(data.x_train.size()[0])
@@ -86,16 +87,15 @@ def train(hyper):
         optimizer.step()
 
         # High verbosity report in output stream
-        if hyper["verbosity"] >=2:
-            if not ((epoch + 1) % hyper["display epochs"]):
-                print('Epoch [{}/{}]'.format(epoch, num_epochs) +\
-                    '\tTraining Loss: {:.4f}'.format(loss) +\
-                    '\tTest Loss: {:.4f}'.format(test_val) +\
-                    "\tPercent Correct: {:.2f}".format(pecent_correct) +\
-                        "%")
+        if args.v >=2:
+            print('Epoch [{}/{}]'.format(epoch, num_epochs) +\
+                '\tTraining Loss: {:.4f}'.format(loss) +\
+                '\tTest Loss: {:.4f}'.format(test_val) +\
+                "\tPercent Correct: {:.2f}".format(pecent_correct) +\
+                    "%")
     
     # Low verbosity final report
-    if hyper["verbosity"]:
+    if args.v:
         print('Final training loss: {:.4f}'.format(obj_vals[-1]))
         print('Final test loss: {:.4f}'.format(cross_vals[-1]))
 
@@ -110,19 +110,25 @@ def train(hyper):
 
 if  __name__ == "__main__":
 
-    # TEMP: location of paramater file
-    p_file = "/Users/aleccooper/Documents/Translate/Detection/hyper.json"
+    # Get Command Line Arguments
+    parser = argparse.ArgumentParser(description="English-Inuktitut Text Classifier in PyTorch")
+    parser.add_argument("datafile",metavar="data_file_name.txt",type=str)
+    parser.add_argument("params",metavar="param_file_name.json",type=str)
+    parser.add_argument('-v', type=int, default=1, metavar='N',
+                        help='Verbosity (Default: 1)')
+    parser.add_argument("-t", action="store_true", dest="tokienize",help="Retokienizes data")
+    args = parser.parse_args()
 
     # import hyper parameters
-    with open(p_file) as paramfile:
+    with open(args.params) as paramfile:
         hyper = json.load(paramfile)
 
     # We need to check if the data parser has run on the corpus yet
     dir_path = os.path.dirname(os.path.realpath(__file__))
     if not os.path.isfile(dir_path + "/Data/x_test.npy"):
-        data = parser.Data(hyper["file location"],10,False,5)
+        data = data_parser.Data(args.datafile,10,False,hyper["num test"])
 
-    train(hyper)
+    train(hyper,args)
 
 
     

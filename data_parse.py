@@ -10,7 +10,7 @@ class Data():
         self.size = size
 
         # ingesting from previosuly saved numpy arrays
-        if from_file:
+        if not from_file:
             dir_path = os.path.dirname(os.path.realpath(__file__))
             dir_path += "/Data"
             x_train = np.load(dir_path + "/x_train.npy")
@@ -47,8 +47,6 @@ class Data():
 
             train_data = data[:num_train]
             test_data = data[num_train:]
-            print("Num of training samples")
-            print(len(train_data))
 
             # break into our x and y data
             x_train = np.copy(train_data[:,:size])
@@ -277,6 +275,3 @@ class Data():
             i+=1
 
         return hot_array
-
-#data = Data("/Users/aleccooper/Documents/Translate/Corpus/test.txt",10,False,2)
-#print(data.x_test.size())
