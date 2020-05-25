@@ -1,6 +1,6 @@
 # Inuktitut-Detect
 Classifier between inuktitut and english words written with PyTorch
-
+Read about this project [here](https://aleccooper.github.io/2020-05-25-inuktitut-classify/)
 
 ## Downloading the Dataset
 The model is trained from [The Nunavut Hansard Inuktitut-English Parallel Corpus](https://www.inuktitutcomputing.ca/NunavutHansard/info.php)  
